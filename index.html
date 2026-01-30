@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO заголовок -->
+    <title>Global Stats Live — Время и Население Всех Стран</title>
+
+    <!-- Описание для поисковиков -->
+    <meta name="description" content="Сайт показывает точное время и население всех стран и всей Земли. Удобный поиск и живые обновления.">
+
+    <!-- Разрешаем индексацию -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph для соцсетей -->
+    <meta property="og:title" content="Global Stats Live — Время и Население Всех Стран">
+    <meta property="og:description" content="Узнай точное время и население любой страны и всей Земли прямо сейчас!">
+    <meta property="og:image" content="logo.png"> <!-- твой логотип -->
+    <meta property="og:url" content="https://yourusername.github.io/WorldClock/">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoRQQdbPoH0EFjzpOi0qRGA4Kcd4RtQb-RPA&s" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            /* Темная тема (по умолчанию) */
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --green: #22c55e;
+            --border: #334155;
+            --header-bg: rgba(15, 23, 42, 0.9);
+        }
+
+        [data-theme="light"] {
+            /* Светлая тема */
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --green: #16a34a;
+            --border: #e2e8f0;
+            --header-bg: rgba(248, 250, 252, 0.9);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
+
+        /* Шапка сайта */
+        header {
+            padding: 40px 0 20px 0;
+        }
+
+        .nav-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        /* Статистика */
+        .world-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+            display: block;
+        }
+
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+
+        /* Поиск */
+        .search-area {
+            margin-bottom: 40px;
+        }
+
+        #search {
+            width: 100%;
+            padding: 20px 28px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            color: var(--text);
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        #search:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+
+        /* Сетка стран */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            flex-grow: 1;
+            margin-bottom: 60px;
+        }
+
+        .country-card {
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .country-card:hover { transform: translateY(-8px); border-color: var(--accent); }
+
+        .flag-img { width: 100%; height: 170px; object-fit: cover; background: var(--border); }
+
+        .card-body { padding: 24px; }
+        .country-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 12px 0; }
+        .data-item { margin-bottom: 10px; font-size: 0.95rem; color: var(--text-muted); }
+        .data-item b, .time-now { color: var(--text); }
+        .time-now { font-weight: 700; color: var(--accent); font-family: monospace; font-size: 1.1rem; }
+
+        /* Футер */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-logo { font-weight: 800; font-size: 1.2rem; color: var(--accent); margin-bottom: 8px; }
+        .footer-copy { font-size: 0.9rem; color: var(--text-muted); }
+
+        @media (max-width: 640px) {
+            .world-stats { grid-template-columns: 1fr; }
+            .nav-top h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="nav-top">
+                <h1 style="margin:0; font-weight:800; letter-spacing:-1px;">Global<span style="color:var(--accent)">Stats</span></h1>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Light Mode</button>
+            </div>
+
+            <div class="world-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Население Земли (Live)</span>
+                    <span class="stat-value" id="world-pop">8,270,000,000</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Прирост сегодня</span>
+                    <span class="stat-value" id="growth-today" style="color: var(--green);">+0</span>
+                </div>
+            </div>
+
+            <div class="search-area">
+                <input type="text" id="search" placeholder="Поиск среди 250 стран...">
+            </div>
+        </header>
+
+        <div id="grid"></div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">Norayr 2026app</div>
+            <div class="footer-copy">&copy; 2026 Все права защищены. Точные данные в реальном времени.</div>
+        </div>
+    </footer>
+
+    <script>
+        let countries = [];
+        const grid = document.getElementById('grid');
+        const searchInput = document.getElementById('search');
+
+        // ТЕМА
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeBtn');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.innerText = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Загрузка сохраненной темы
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.getElementById('themeBtn').innerText = '🌙 Dark Mode';
+        }
+
+        // НАСЕЛЕНИЕ МИРА
+        const startPop = 8270000000; 
+        function updateWorldStats() {
+            const now = new Date();
+            const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const currentPop = startPop + (secondsToday * 2.3);
+            const growthToday = (secondsToday * 2.3);
+            document.getElementById('world-pop').innerText = Math.floor(currentPop).toLocaleString('ru-RU');
+            document.getElementById('growth-today').innerText = "+" + Math.floor(growthToday).toLocaleString('ru-RU');
+        }
+
+        // ДАННЫЕ СТРАН
+        async function loadData() {
+            try {
+                const res = await fetch('https://restcountries.com/v3.1/all?fields=name,population,timezones,translations,cca2');
+                const data = await res.json();
+                countries = data.sort((a, b) => {
+                    const nameA = a.translations.rus?.common || a.name.common;
+                    const nameB = b.translations.rus?.common || b.name.common;
+                    return nameA.localeCompare(nameB);
+                });
+                render(countries);
+                setInterval(updateWorldStats, 200); 
+                setInterval(updateClocks, 1000);
+            } catch (e) {
+                grid.innerHTML = "<h2 style='text-align:center; width:100%'>Ошибка загрузки данных.</h2>";
+            }
+        }
+
+        function render(dataList) {
+            grid.innerHTML = dataList.map((c) => {
+                const name = c.translations.rus?.common || c.name.common;
+                const originalIndex = countries.indexOf(c);
+                return `
+                    <div class="country-card">
+                        <img src="https://flagcdn.com/w320/${c.cca2.toLowerCase()}.png" class="flag-img" loading="lazy">
+                        <div class="card-body">
+                            <h3 class="country-name">${name}</h3>
+                            <div class="data-item">👥 Население: <b>${c.population.toLocaleString('ru-RU')}</b></div>
+                            <div class="data-item">🕒 Время: <span class="time-now" id="t-${originalIndex}">--:--:--</span></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            updateClocks();
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            const filtered = countries.filter(c => {
+                const rusName = (c.translations.rus?.common || "").toLowerCase();
+                const engName = c.name.common.toLowerCase();
+                return rusName.includes(val) || engName.includes(val);
+            });
+            render(filtered);
+        });
+
+        function updateClocks() {
+            countries.forEach((c, i) => {
+                const el = document.getElementById(`t-${i}`);
+                if (!el) return;
+                try {
+                    const tz = c.timezones[0];
+                    let off = 0;
+                    const m = tz.match(/([+-])(\d+):?(\d+)?/);
+                    if(m) off = (m[1] === '+'?1:-1) * (parseInt(m[2])*60 + (m[3]?parseInt(m[3]):0));
+                    const now = new Date();
+                    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                    const local = new Date(utc + (off * 60000));
+                    el.innerText = local.toLocaleTimeString('ru-RU');
+                } catch (e) {
+                    el.innerText = "00:00:00";
+                }
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
